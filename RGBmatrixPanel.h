@@ -41,7 +41,8 @@ class RGBmatrixPanel : public Adafruit_GFX {
     fillScreen(uint16_t c),
     updateDisplay(void),
     swapBuffers(boolean),
-    dumpMatrix(void);
+    dumpMatrix(void),
+    init6126A(void);
   uint8_t
     *backBuffer(void);
   uint16_t
@@ -57,10 +58,11 @@ class RGBmatrixPanel : public Adafruit_GFX {
   uint8_t          nRows;
   volatile uint8_t backindex;
   volatile boolean swapflag;
+  void write6126Areg(uint16_t data, uint8_t reg);
 
   // Init/alloc code common to both constructors:
   void init(uint8_t rows, uint8_t a, uint8_t b, uint8_t c,
-	    uint8_t clk, uint8_t lat, uint8_t oe, boolean dbuf, 
+	    uint8_t clk, uint8_t lat, uint8_t oe, boolean dbuf,
 	    uint8_t width
 #if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_ESP32)
             ,uint8_t *rgbpins

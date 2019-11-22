@@ -147,7 +147,7 @@ void RGBmatrixPanel::init(uint8_t rows, uint8_t a, uint8_t b, uint8_t c,
   addrbport = portOutputRegister(digitalPinToPort(b));
   addrbmask = digitalPinToBitMask(b);
   addrcport = portOutputRegister(digitalPinToPort(c));
-  addrcmask = digitalPinToBitMask(c); 
+  addrcmask = digitalPinToBitMask(c);
   plane     = nPlanes - 1;
   row       = nRows   - 1;
   swapflag  = false;
@@ -200,6 +200,8 @@ IRAM_ATTR void IRQ_HANDLER(void *);
 #endif
 
 void RGBmatrixPanel::begin(void) {
+
+    init6126A();
 
   backindex   = 0;                         // Back buffer
   buffptr     = matrixbuff[1 - backindex]; // -> front buffer
@@ -870,10 +872,10 @@ void RGBmatrixPanel::updateDisplay(void) {
         ((ptr[i+WIDTH*2] << 2) & 0x0C);
       CLKPORT = tick; // Clock lo
       CLKPORT = tock; // Clock hi
-    } 
+    }
 #elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_ESP32)
     for (int i=0; i<WIDTH; i++) {
-      byte b = 
+      byte b =
 	( ptr[i]         << 6)         |
         ((ptr[i+WIDTH]   << 4) & 0x30) |
         ((ptr[i+WIDTH*2] << 2) & 0x0C);
@@ -887,3 +889,70 @@ void RGBmatrixPanel::updateDisplay(void) {
   }
 }
 
+
+void RGBmatrixPanel::init6126A(void)
+{
+
+        uint16_t b12=0b0111111111111110;
+        uint16_t b13=0b0000000001000000;
+
+        DATADIR = 0xFC;
+
+        pinMode(_a, OUTPUT);
+        pinMode(_b, OUTPUT);
+        pinMode(_c, OUTPUT);
+        pinMode(_d, OUTPUT);
+
+        pinMode(_lat, OUTPUT);
+        pinMode(_clk, OUTPUT);
+        pinMode(_oe, OUTPUT);
+
+        digitalWrite(_clk, LOW);
+
+        digitalWrite(_oe, LOW);
+
+        digitalWrite(_a, HIGH);
+        digitalWrite(_b, LOW);
+        digitalWrite(_c, LOW);
+        digitalWrite(_d, LOW);
+
+        write6126Areg(b12, 12);
+        write6126Areg(b13, 13);
+
+        digitalWrite(_oe, HIGH);
+
+        delay(1);
+}
+
+
+void RGBmatrixPanel::write6126Areg(uint16_t data, uint8_t reg)
+{
+                for (int x = 0; x < 128; x++) {
+
+                int y = x % 16;
+
+                if ((data << y) & 0x8000) {
+
+                        DATAPORT = 0xFC;
+
+                }
+                else {
+
+                        DATAPORT = 0x00;
+
+                }
+                delayMicroseconds(300);
+
+                digitalWrite(_clk, HIGH);
+                delay(1);
+
+                digitalWrite(_clk, LOW);
+                delayMicroseconds(700);
+
+                if (x == (128 - reg))
+                        digitalWrite(_lat, HIGH);
+        }
+
+        digitalWrite(_lat, LOW);
+
+}
