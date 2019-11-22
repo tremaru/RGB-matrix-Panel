@@ -1,4 +1,14 @@
-/*
+/* Support for 64x32 matrix with fm6126A shift registers added by iarduino.ru
+ * Due to time constrains and only 64x32 matrices that I have on hand
+ * I cannot verify that it will work with other sizes.
+ * It is not "proper" code, it's a hack. Basically those fm6126A
+ * shift registers have to be configured before using. After
+ * that they work as any other chips seen in those matrices.
+ * Just like in PxMatrix library (https://github.com/2dom/PxMatrix)
+ * all FM6126A code is based on the excellent guesswork by shades66
+ * in https://github.com/hzeller/rpi-rgb-led-matrix/issues/746
+ *
+ * Original preamble:
 RGBmatrixPanel Arduino library for Adafruit 16x32 and 32x32 RGB LED
 matrix panels.  Pick one up at:
   http://www.adafruit.com/products/420
@@ -889,11 +899,13 @@ void RGBmatrixPanel::updateDisplay(void) {
   }
 }
 
-
+// 6126 code starts here. "Sorry for the crudity
+// of the model, didn't have time to paint it
+// or build it to scale..."
 void RGBmatrixPanel::init6126A(void)
 {
 
-        uint16_t b12=0b0111111111111110;
+        uint16_t b12=0b0111111111111111;
         uint16_t b13=0b0000000001000000;
 
         DATADIR = 0xFC;
