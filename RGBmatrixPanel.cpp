@@ -9,7 +9,7 @@
  * in https://github.com/hzeller/rpi-rgb-led-matrix/issues/746
  *
  * Original preamble:
- 
+
 RGBmatrixPanel Arduino library for Adafruit 16x32 and 32x32 RGB LED
 matrix panels.  Pick one up at:
   http://www.adafruit.com/products/420
@@ -940,7 +940,7 @@ void RGBmatrixPanel::init6126A(void)
 
 void RGBmatrixPanel::write6126Areg(uint16_t data, uint8_t reg)
 {
-        for (int x = 0; x < 128; x++) {
+        for (int x = 0; x < _width; x++) {
 
                 int y = x % 16;
 
@@ -962,7 +962,7 @@ void RGBmatrixPanel::write6126Areg(uint16_t data, uint8_t reg)
                 digitalWrite(_clk, LOW);
                 delayMicroseconds(700);
 
-                if (x == (128 - reg))
+                if (x == (_width - reg))
                         digitalWrite(_lat, HIGH);
         }
 
